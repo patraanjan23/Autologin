@@ -57,7 +57,7 @@ def close_login_page(browser, x):
     return True
 
 
-TAB_ID = 99
+TAB_ID = 0
 
 
 def reset_tab_id():
@@ -124,4 +124,4 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    main()
