@@ -1,13 +1,14 @@
 import json
 import time
 
+import ntplib
 from selenium import webdriver
 
 CONFIG_FN = "config.json"
 
 
 def update_config():
-    print "can not find configuration file or the file is wrongly formatted. Reconfiguring.."
+    print "Creating new configuration. Enter the following"
 
     url = raw_input("Login url: ")
     username = raw_input("Username: ")
@@ -35,93 +36,46 @@ def check_config():
         return check_config()
 
 
-def open_new_tab(browser, tab_id):
-    if type(browser).__name__ == 'WebDriver':
-        script = "window.open('', '_new_tab" + str(tab_id) + "')"
-        browser.execute_script(script)
-        return True
-    return False
+def login():
+    config = check_config()
 
+    _url = config['url']
+    _username = str(config['username'])
+    _password = str(config['password'])
 
-def switch_to_tab(browser, tab_index=0):
-    if type(browser).__name__ == 'WebDriver':
-        browser.switch_to_window(browser.window_handles[tab_index])
-        return True
-    return False
+    print _url, _username, _password
 
+    firefox = webdriver.Firefox()
+    time.sleep(1)
+    firefox.get(_url)
+    time.sleep(4)
 
-def close_login_page(browser, x):
-    open_new_tab(browser, x)
-    browser.close()
-    switch_to_tab(browser, 0)
-    return True
+    script_1 = "document.getElementById('username').setAttribute('value', '" + _username + "')"
+    script_2 = "document.getElementById('password').setAttribute('value', '" + _password + "')"
+    firefox.execute_script(script_1)
+    firefox.execute_script(script_2)
 
+    login_attempt = firefox.find_element_by_xpath("//*[@type='submit']")
+    print login_attempt.submit()
+    time.sleep(10)
 
-TAB_ID = 0
-
-
-def reset_tab_id():
-    global TAB_ID
-    TAB_ID = 0
-
-
-def increase_tab_id():
-    global TAB_ID
-    TAB_ID = TAB_ID + 1
-
-
-def login2(browser, url, USER, PASS):
-    browser.get(url)
-    time.sleep(5)
-
-    status = browser.find_element_by_id('lblusername')
-
-    if str(status.text) == USER:
-        if TAB_ID > 100:
-            browser.quit()
-            reset_tab_id()
-            return False
-        close_login_page(browser, TAB_ID)
-        increase_tab_id()
-        return True
-
-    else:
-        username = browser.find_element_by_id("username")
-        password = browser.find_element_by_id("password")
-        username.send_keys(USER)
-        password.send_keys(PASS)
-        login_attempt = browser.find_element_by_xpath("//*[@type='submit']")
-        login_attempt.submit()
-        return True
+    firefox.quit()
 
 
 def main():
-    config = check_config()
-    firefox = webdriver.Firefox()
-
-    # test_case = "11:56"
-
+    ntp = ntplib.NTPClient()
+    print "make sure the machine is connected to internet while launching the script\nso it can get real time delta for your place"
+    time_delta = ntp.request('in.pool.ntp.org').tx_time - time.mktime(time.gmtime()) + 5 * 3600 + 30 * 60
     while True:
-        now = time.strftime("%H:%M", time.localtime())
+        now = time.strftime("%H:%M", time.gmtime(time.mktime(time.gmtime()) + time_delta))
         print now
-        if now == "00:00" or now == "08:00":  # or now == test_case:
-            if not login2(firefox, config['url'], config['username'], config['password']):
-                firefox = webdriver.Firefox()
-            print 'success'
-            time.sleep(60)
-        time.sleep(5)
+        if now == "00:00" or now == "08:00":
+            login()
+            time.sleep(50)
+        else:
+            time.sleep(5)
+            pass
 
 
-def test():
-    config = check_config()
-    f = webdriver.Firefox()
-
-    while True:
-        if not login2(f, config['url'], config['username'], config['password']):
-            f = webdriver.Firefox()
-        time.sleep(10)
-        print 'Success'
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
