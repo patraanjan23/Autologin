@@ -10,21 +10,24 @@ window open all time. In principle the script can be tweaked to login to any web
 
 * [Firefox](https://www.mozilla.org/en-US/firefox/new/)
 * [Python 2.7](https://www.python.org/downloads/release/python-2713/)
-* [geckodriver](https://github.com/mozilla/geckodriver/releases)
-* Json for Python
-* Selenium for Python
 
 ## Instructions
 
-1. Install Firefox
-2. Install Python 2.7 and make sure to choose **Add Python to PATH** in the component while installing
-3. Open a cmd with as admin and use the following following commands:
+### Windows
 
-    `pip install json selenium`
-4. Download [geckodriver](https://github.com/mozilla/geckodriver/releases) and extract the *geckodriver.exe* in
-`C:/Python27`
-5. Download **Autologin.py** from this git and put it in a folder and double click it to run
-6. You don't need to close the script. It'll keep running.
+1. Download this repository as a zip and extract at `YOUR_EXTRACTED_FOLDER_PATH`
+2. Open **command prompt (admin)** and execute the following commands
+    ```
+    pip install -r YOUR_EXTRACTED_FOLDER_PATH/requirements.txt
+    python setup.py
+    python autologin.py
+    ```
+3. Let the script run. It will auto login at 8AM/12AM
+
+### Linux
+
+1. Open a terminal
+2. Do the equivalent windows things but before using `pip` use `sudo -H`
 
 ## Some things I need to mention
 I am not a programming genius. I tried *requests*, *twill* to make this as painless as possible, but unfortunately could
